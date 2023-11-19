@@ -6,35 +6,44 @@ document.addEventListener("DOMContentLoaded", () => {
   let localStream;
   let peerConnection;
 
-  // Function to start the video chat
   async function startVideoChat() {
     try {
+      // Get user media
       localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
       });
       localVideo.srcObject = localStream;
 
-      // Initialize the peer connection
+      // Create peer connection
       peerConnection = new RTCPeerConnection();
 
-      // Add the local stream to the peer connection
+      // Add local stream to the peer connection
       localStream
         .getTracks()
         .forEach((track) => peerConnection.addTrack(track, localStream));
 
-      // Set up the remote video stream when received
+      // Set up event handler for receiving remote stream
       peerConnection.ontrack = (event) => {
         remoteVideo.srcObject = event.streams[0];
       };
 
-      // Create an offer to initiate the connection
+      // Create and send offer
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
 
-      // Send the offer to the other user (you would use a signaling server for this in a real application)
-      // For simplicity, you can alert the offer for testing purposes
-      alert(JSON.stringify(offer));
+      // Simulate sending the offer to the other user (in a real app, use a signaling server)
+      const offerStr = JSON.stringify(offer);
+      alert("Offer created. Share this with the other user:\n\n" + offerStr);
+
+      // Simulate receiving the answer from the other user (in a real app, use a signaling server)
+      const answerStr = prompt(
+        "Enter the answer received from the other user:"
+      );
+      const answer = JSON.parse(answerStr);
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(answer)
+      );
     } catch (error) {
       console.error("Error starting video chat:", error);
     }
